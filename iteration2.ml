@@ -5,7 +5,7 @@
 (*Iteration 2*)
 
 (*1*)
-type t_ship_size = {nom: string, len: int}
+type t_ship_size = {nom: string; len: int}
 ;;
 
 type t_params = {
