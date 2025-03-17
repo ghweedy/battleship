@@ -19,8 +19,8 @@ type t_params = {
 }
 ;;
 
-type t_grid = sting array array
+type t_grid = string array array
 ;;
 
-type t_ship = {name0: string, pos: (int * int) list}
+type t_ship = {name0: string; pos: (int * int) list}
 ;;
