@@ -198,9 +198,11 @@ type t_params = {
   grid_size : int;     
   window_width : int;  
   window_height : int; 
-};; 
+  ship_size: int;
+}
+;; 
 
-(*Commantaire:
+(*Commentaire:
 margin: largeur des marges, 30 pixels
 cell_size: largeur des cases, 15 pixels
 message_size: hauteur de la zone de message, 60 pixels
@@ -224,7 +226,8 @@ let init_params () : t_params =
   in
   { margin; cell_size; message_size; grid_size; window_width; window_height }
 ;;
-(*Commantaire:
+
+(*Commentaire:
   window_width: calcul de la largeur de la fenêtre :
     - marge à gauche, grille 1, marge entre les grilles, grille 2, marge à droite
   window_height: calcul de la hauteur de la fenêtre :
@@ -252,8 +255,9 @@ let display_empty_grids (params : t_params) : unit =
     done;
     print_newline ();
   done;
-  
-(*Commantaire:
+;;
+
+(*Commentaire:
 case_repr: représentation d'une case
 ecart: espace séparateur entre les deux grilles
 boucle for: pour chaque ligne, on affiche: les cases de la grille de gauche,
@@ -278,8 +282,11 @@ let () : unit =
   battleship_game ();
 ;;
 
-(*Commantaire:
+(*Commentaire:
 battleship_game: la fonction battleship_game initialise les paramètres du jeu via init_params,
 puis affiche les grilles vides en appelant display_empty_grids avec ces paramètres.
 fonction sans nom: point d'entrée du programme
 @author TOTSKYI Hlib*)
+
+
+
