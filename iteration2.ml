@@ -24,12 +24,20 @@ type t_ship = { name0 : string; pos : (int * int) list };;
 type direction = Horizontal | Vertical;;
 
 let create_grid (size : int) : t_grid =
-  Array.make_matrix size size ""
+  Array.make_matrix size size "" 
 ;;
-(*@author Hlib TOTSKYI*)
+
+(*Commentaire: La section 1 définit les types de base pour l'itération 2 du jeu "Bataille Navale".
+Elle inclut :
+- t_ship_size : un type représentant la taille d'un navire, avec son nom et sa longueur.
+- t_params : un type regroupant les paramètres du jeu et de la fenêtre graphique, incluant la liste des tailles de navires.
+- t_grid : la représentation de la grille de jeu sous forme de matrice de chaînes de caractères.
+- t_ship : un type représentant un navire, défini par son nom et la liste de positions occupées.
+- direction : un type énuméré indiquant l'orientation d'un navire (Horizontal ou Vertical).
+La fonction create_grid initialise une grille vide de taille donnée.
+@author TOTSKYI Hlib*)
 
 (*2*)
-(* Calcul itératif de la liste des positions d’un bateau -------- *)
 let positions_list (x, y, len, dir : int * int * int * direction) : (int * int) list =
   let acc = ref [] in
   for i = 0 to len - 1 do
@@ -38,7 +46,6 @@ let positions_list (x, y, len, dir : int * int * int * direction) : (int * int) 
   List.rev !acc
 ;;
 
-(* Vérifie si un bateau tient dans la grille sans chevauchement --- *)
 let can_place_ship (grid, positions : t_grid * (int * int) list) : bool =
   let size = Array.length grid in
   let arr = Array.of_list positions in
@@ -50,11 +57,9 @@ let can_place_ship (grid, positions : t_grid * (int * int) list) : bool =
   !ok
 ;;
 
-(* Renvoie une direction aléatoire -------------------------------- *)
 let random_direction () = if Random.bool () then Horizontal else Vertical
 ;;
 
-(* Place les cases du bateau dans la grille ----------------------- *)
 let fill_positions (grid, ship_name, positions : t_grid * string * (int * int) list) : unit =
   let arr = Array.of_list positions in
   for i = 0 to Array.length arr - 1 do
@@ -62,7 +67,6 @@ let fill_positions (grid, ship_name, positions : t_grid * string * (int * int) l
   done
 ;;
 
-(* Place un bateau aléatoirement dans la grille ------------------- *)
 let rec place_one_ship (grid, ship : t_grid * t_ship_size) : t_ship =
   let size = Array.length grid in
   let dir = random_direction () in
@@ -75,7 +79,6 @@ let rec place_one_ship (grid, ship : t_grid * t_ship_size) : t_ship =
   ) else place_one_ship (grid, ship)
 ;;
 
-(* Place tous les bateaux de façon itérative ---------------------- *)
 let auto_placing_ships (grid, ships : t_grid * t_ship_size list) : t_ship list =
   let placed = ref [] in
   let ship_array = Array.of_list ships in
@@ -90,7 +93,17 @@ let auto_placing_ships (grid, ships : t_grid * t_ship_size list) : t_ship list =
   List.rev !placed
 ;;
 
-(*@author Hlib TOTSKYI*)
+(*Commentaire:
+La section 2 regroupe les fonctions relatives au placement des navires sur la grille.
+- positions_list calcule la liste des positions occupées par un navire à partir de sa position initiale, de sa longueur et de son orientation.
+- can_place_ship vérifie que les positions d'un navire sont valides (dans la grille et sans chevauchement).
+- random_direction renvoie aléatoirement une orientation (Horizontal ou Vertical).
+- fill_positions inscrit le nom du navire dans les cases correspondantes de la grille.
+- place_one_ship tente de placer un navire de façon aléatoire en utilisant les fonctions précédentes et réessaie en cas d'impossibilité de placement.
+- auto_placing_ships place tous les navires d'une liste sur la grille de manière itérative.
+@author TOTSKYI Hlib
+@author AHAMADI Izaki
+@author TERRENOIRE Yvan*)
 
 (*3*)
 let cell_to_pixel (params, is_left, cx, cy : t_params * bool * int * int) : int * int =
@@ -111,7 +124,13 @@ let display_grid (params, grid, is_left, show_ships : t_params * t_grid * bool *
   if show_ships then for y = 0 to size - 1 do for x = 0 to size - 1 do if grid.(y).(x) <> "" then color_cell (params, is_left, x, y, Graphics.rgb 150 200 150) done done
   ;;
 
-  (*@author Hlib TOTSKYI*)
+(*Commentaire:
+La section 3 gère la conversion des coordonnées de la grille en pixels et l'affichage graphique de la grille.
+- cell_to_pixel convertit les coordonnées d'une cellule en coordonnées pixels en fonction des paramètres et de l'indicateur is_left (pour différencier la grille de l'ordinateur et celle du joueur).
+- color_cell remplit une cellule de la grille avec une couleur donnée et dessine son contour.
+- display_grid trace les lignes de la grille et, si show_ships est vrai, colore les cases contenant un navire.
+@author TOTSKYI Hlib
+@author AHAMADI Izaki*)
 
 (*4*)
 let init_params () : t_params =
@@ -122,16 +141,23 @@ let init_params () : t_params =
   { margin; cell_size; message_size; grid_size; window_width; window_height; ship_sizes=ships }
 ;;
 
-let battleship_game_iteration2 () : unit =
+let battleship_game () : unit =
   let params = init_params () in
-  open_graph (params.window_width, params.window_height); set_window_title "Bataille Navale – Itération 2"; Random.self_init ();;
+  open_graph (params.window_width, params.window_height); set_window_title "Bataille Navale"; Random.self_init ();;
   let grid = create_grid params.grid_size in ignore (auto_placing_ships (grid, params.ship_sizes));;
   display_grid (params, grid, true, false); display_grid (params, grid, false, true)
 ;;
   ignore (read_key ()); close_graph ()
 ;;
 
-let () = battleship_game_iteration2 ()
+let () = battleship_game ()
 ;;
     
-(*@author Hlib TOTSKYI*)
+(*Commentaire:
+La section 4 initialise les paramètres du jeu et lance "Bataille Navale".
+- init_params calcule les dimensions de la fenêtre graphique et définit la liste des navires (Porte-avions, Croiseur, Contre-torpilleur, Torpilleur).
+- battleship_game ouvre la fenêtre graphique, initialise le générateur aléatoire, crée la grille, et place aléatoirement les navires.
+  Ensuite, elle affiche deux grilles : celle de l'ordinateur (avec les navires masqués) et celle du joueur (avec les navires visibles).
+  La fonction attend que l'utilisateur appuie sur une touche avant de fermer la fenêtre graphique.
+@author TOTSKYI Hlib
+@author TERRENOIRE Yvan*)
