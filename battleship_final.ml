@@ -189,6 +189,7 @@ let wait_button_down () : int * int =
 (*---------------------------------*)
 
 type t_ship_size = { nom : string; len : int }
+;;
 
 type t_params = {
   margin       : int;
@@ -199,6 +200,7 @@ type t_params = {
   window_height: int;
   ship_sizes   : t_ship_size list;
 }
+;;
 
 type t_grid = string array array;;
 
