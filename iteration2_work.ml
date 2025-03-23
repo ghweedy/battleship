@@ -1,6 +1,7 @@
 (*---------------------------------*)
 
 type t_ship_size = { nom : string; len : int }
+;;
 
 type t_params = {
   margin       : int;
@@ -11,6 +12,7 @@ type t_params = {
   window_height: int;
   ship_sizes   : t_ship_size list;
 }
+;;
 
 type t_grid = string array array;;
 
@@ -192,7 +194,9 @@ La section 2 regroupe les fonctions relatives au placement des navires sur la gr
 - fill_positions inscrit le nom du navire dans les cases correspondantes de la grille.
 - place_one_ship tente de placer un navire de façon aléatoire en utilisant les fonctions précédentes et réessaie en cas d'impossibilité de placement.
 - auto_placing_ships place tous les navires d'une liste sur la grille de manière itérative.
-@author TOTSKYI Hlib*)
+@author TOTSKYI Hlib
+@author AHAMADI Izaki
+@author TERRENOIRE Yvan*)
 
 let cell_to_pixel (params, is_left, cx, cy : t_params * bool * int * int) : int * int =
   let origin = if is_left then params.margin else params.margin + params.grid_size * params.cell_size + params.margin in
