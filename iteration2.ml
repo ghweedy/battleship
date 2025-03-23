@@ -16,6 +16,7 @@ type t_params = {
   window_height: int;
   ship_sizes   : t_ship_size list;
 }
+;;
 
 type t_grid = string array array;;
 
