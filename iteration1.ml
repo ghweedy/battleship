@@ -1,6 +1,8 @@
-(*@author TOTSKYI Hlib
+(**
+@author TOTSKYI Hlib
 @author TERRENOIRE Yvan
-@author AHAMADI Izaki*)
+@author AHAMADI Izaki
+*)
 
 
 (*Iteration 1*)
@@ -17,7 +19,7 @@ type t_params = {
 }
 ;; 
 
-(*Commentaire:
+(**Commentaire:
 margin: largeur des marges, 30 pixels
 cell_size: largeur des cases, 15 pixels
 message_size: hauteur de la zone de message, 60 pixels
@@ -42,7 +44,7 @@ let init_params () : t_params =
   { margin; cell_size; message_size; grid_size; window_width; window_height }
 ;;
 
-(*Commentaire:
+(**Commentaire:
   window_width: calcul de la largeur de la fenêtre :
     - marge à gauche, grille 1, marge entre les grilles, grille 2, marge à droite
   window_height: calcul de la hauteur de la fenêtre :
@@ -82,7 +84,7 @@ let display_empty_grids (params : t_params) : unit =
     Graphics.lineto (x_start_right + j * cell_size) (y_start_right + grid_size * cell_size)
   done;
 
-(*Commentaire:
+(**Commentaire:
 display_empty_grids params dessine deux grilles vides l’une à côté de l’autre 
 dans la fenêtre graphique. Chaque grille possède grid_size lignes et colonnes, 
 et la taille de chaque case est déterminée par cell_size. 
@@ -115,6 +117,17 @@ Graphics.moveto label_right_x label_y;
 Graphics.draw_string label_right;
 ;;
 
+(**Commentaire:
+display_empty_grids dessine deux grilles vides l’une à côté de l’autre 
+dans la fenêtre graphique. Chaque grille possède grid_size lignes et colonnes, 
+et la taille de chaque case est déterminée par cell_size. 
+Les marges (définies par margin) sont utilisées pour espacer la première grille 
+du bord gauche de la fenêtre et pour séparer les deux grilles. 
+On trace d’abord la grille de gauche en utilisant les coordonnées de départ 
+x_start_left, y_start_left, puis on trace la grille de droite en ajoutant 
+margin + grid_size * cell_size pour décaler l’origine sur l’axe des X.
+@author TOTSKYI Hlib
+@author TERRENOIRE Yvan*)
 
 (*4*)
 let battleship_game () =
@@ -129,7 +142,7 @@ let battleship_game () =
 
 let () = battleship_game (); 
 
-(*Commentaire:
+(**Commentaire:
 battleship_game est la fonction principale du jeu "Bataille Navale". 
 Elle effectue les opérations suivantes :
 Initialise les paramètres du jeu en appelant init_params, qui détermine la taille 
