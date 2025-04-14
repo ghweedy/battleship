@@ -351,7 +351,7 @@ check_cell retourne true si la case (i, j) dans grid a la valeur 3 (bateau touch
 *)
 
 let check_sunk_ship (ship, grid: t_ship * t_grid) : bool =
-  my_for_all (check_cell, ship.positions)
+  all_listes (check_cell, ship.positions)
 ;;
 (**
 check_sunk_ship retourne true si toutes les positions du bateau sont à 3 dans grid, indiquant qu'il est coulé.
@@ -472,7 +472,7 @@ check_cell_x retourne true si la cellule (i, j) vaut 4, c'est-à-dire si le bate
 *)
 
 let ship_sunk (ship, grid: t_ship * t_grid) : bool =
-  all_listes (check_cell_4, ship.positions)
+  all_listes (check_cell_x, ship.positions)
 ;;
 (**
 Commentaire :
