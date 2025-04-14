@@ -1,161 +1,135 @@
+#mod_use "CPgraphics.ml";;
+open CPgraphics;;
 (**
 @author TOTSKYI Hlib
 @author TERRENOIRE Yvan
 @author AHAMADI Izaki
 *)
 
-
-(*Iteration 1*)
-
-(*1*)
 type t_params = {
-  margin : int;        
-  cell_size : int;     
-  message_size : int;  
-  grid_size : int;     
-  window_width : int;  
-  window_height : int; 
-  ship_size: int;
-}
-;; 
+  margin : int;
+  cell_size : int;
+  message_size : int;
+  grid_size : int;
+};;  
+(**
+Commentaire :
+Ce type représente les paramètres du jeu.
+Il contient :
+- margin : la marge autour de la zone de jeu (en pixels),
+- cell_size : la taille d'une cellule de la grille (en pixels),
+- message_size : la hauteur de la zone d’affichage des messages (en pixels),
+- grid_size : le nombre de cellules sur un côté de la grille (int).
+Le choix d'un record permet de regrouper ces valeurs de manière structurée.
+*)
 
-(**Commentaire:
-margin: largeur des marges, 30 pixels
-cell_size: largeur des cases, 15 pixels
-message_size: hauteur de la zone de message, 60 pixels
-grid_size: taille des grilles en nombre de cases, 10 pixels
-window_width: largeur totale de la fenêtre graphique
-window_height: hauteur totale de la fenêtre graphique
-@author TOTSKYI Hlib*)
-
-(*2*)
 let init_params () : t_params =
-  let margin : int = 30 in
-  let cell_size : int = 15 in
-  let message_size : int = 60 in
-  let grid_size : int = 10 in
+  { margin = 30;
+    cell_size = 15;
+    message_size = 60;
+    grid_size = 10 }
+;;  
+(**
+Commentaire :
+Cette fonction initialise et retourne une valeur de type t_params avec des valeurs par défaut.
+Elle ne prend aucun paramètre, et les valeurs choisies (30, 15, 60, 10) ont été fixées pour offrir un affichage adapté.
+*)
 
-  let window_width =
-    margin + (cell_size * grid_size) + margin + (cell_size * grid_size) + margin
-  in
-  let window_height =
-    margin + message_size + (cell_size * grid_size) + margin
-  in
-  { margin; cell_size; message_size; grid_size; window_width; window_height }
-;;
+let draw_grid (x0, y0, grid_size, cell_size: int * int * int * int) : unit =
+  for i = 0 to grid_size do
+    let x = x0 + i * cell_size in
+    moveto x y0;
+    lineto x (y0 + grid_size * cell_size)
+  done;
+  for j = 0 to grid_size do
+    let y = y0 + j * cell_size in
+    moveto x0 y;
+    lineto (x0 + grid_size * cell_size) y
+  done
+;;  
+(**
+Commentaire :
+Cette fonction trace une grille carrée à partir du coin inférieur gauche (x0, y0).
+Elle reçoit :
+- x0, y0 : les coordonnées du coin inférieur gauche (int * int),
+- grid_size : le nombre de cellules par ligne et colonne (int),
+- cell_size : la taille de chaque cellule en pixels (int).
+La fonction utilise deux boucles for :
+- La première boucle trace les lignes verticales en calculant x = x0 + i * cell_size,
+- La deuxième boucle trace les lignes horizontales en calculant y = y0 + j * cell_size.
+Le résultat est une grille dessinée dans la fenêtre graphique.
+*)
 
-(**Commentaire:
-  window_width: calcul de la largeur de la fenêtre :
-    - marge à gauche, grille 1, marge entre les grilles, grille 2, marge à droite
-  window_height: calcul de la hauteur de la fenêtre :
-     - marge en haut, zone de message, grille, marge en bas
-  @author TOTSKYI Hlib
-  @author AHAMADI Izaki*)
+let display_grid (x, y, params, label: int * int * t_params * string) : unit =
+  let nb_cells : int = params.grid_size in
+  let cell_dim : int = params.cell_size in
+  draw_grid x y nb_cells cell_dim;
+  moveto x (y + nb_cells * cell_dim + 10);
+  draw_string label  
+(**
+Commentaire :
+Cette fonction dessine une grille et affiche une étiquette au-dessus.
+Elle reçoit :
+- x, y : les coordonnées du coin inférieur gauche de la grille (int * int),
+- params : la structure t_params qui fournit grid_size et cell_size,
+- label : la chaîne de caractères à afficher (string), par exemple "Ordinateur" ou "Joueur".
+La fonction appelle d'abord draw_grid pour tracer la grille, puis positionne le curseur juste au-dessus de la grille pour afficher l'étiquette.
 
-(*3*)
+On utilise nb_cells et cell_dim pour rendre explicite :
+nb_cells correspond au nombre de cellules dans la grille,
+cell_dim correspond à la taille (en pixels) d'une cellule.
+Ceci améliore la lisibilité par rapport à l'appel direct :
+draw_grid x y params.grid_size params.cell_size;
+*)
+
 let display_empty_grids (params : t_params) : unit =
-  let margin = params.margin in
-  let cell_size = params.cell_size in
-  let grid_size = params.grid_size in
+  clear_graph ();
+  let x1 : int = params.margin in
+  let y : int = params.margin + params.message_size in
+  let x2 : int = params.margin * 2 + params.grid_size * params.cell_size in
+  display_grid x1 y params "Ordinateur";
+  display_grid x2 y params "Joueur"
+;;  
+(**
+Commentaire :
+Cette fonction efface la fenêtre graphique et affiche deux grilles vides pour le jeu.
+Elle reçoit :
+- params : les paramètres du jeu (t_params) utilisés pour calculer les positions des grilles.
+Elle définit localement :
+- x1 : la position en X de la première grille, égale à margin,
+- y : la position en Y obtenue en additionnant margin et message_size (pour laisser de l’espace aux messages),
+- x2 : la position en X de la deuxième grille, calculée pour être placée à droite de la première.
+Ensuite, elle appelle display_grid pour afficher chaque grille avec son étiquette.
+*)
 
-  let x_start_left = margin in
-  let y_start_left = margin in
-
-  for i = 0 to grid_size do
-    Graphics.moveto x_start_left (y_start_left + i * cell_size);
-    Graphics.lineto (x_start_left + grid_size * cell_size) (y_start_left + i * cell_size)
-  done;
-
-  for j = 0 to grid_size do
-    Graphics.moveto (x_start_left + j * cell_size) y_start_left;
-    Graphics.lineto (x_start_left + j * cell_size) (y_start_left + grid_size * cell_size)
-  done;
-
-  let x_start_right = margin + (grid_size * cell_size) + margin in
-  let y_start_right = margin in
-
-  for i = 0 to grid_size do
-    Graphics.moveto x_start_right (y_start_right + i * cell_size);
-    Graphics.lineto (x_start_right + grid_size * cell_size) (y_start_right + i * cell_size)
-  done;
-
-  for j = 0 to grid_size do
-    Graphics.moveto (x_start_right + j * cell_size) y_start_right;
-    Graphics.lineto (x_start_right + j * cell_size) (y_start_right + grid_size * cell_size)
-  done;
-
-(**Commentaire:
-display_empty_grids params dessine deux grilles vides l’une à côté de l’autre 
-dans la fenêtre graphique. Chaque grille possède grid_size lignes et colonnes, 
-et la taille de chaque case est déterminée par cell_size. 
-Les marges (définies par margin) sont utilisées pour espacer la première grille 
-du bord gauche de la fenêtre et pour séparer les deux grilles. 
-On trace d’abord la grille de gauche en utilisant les coordonnées de départ 
-x_start_left, y_start_left, puis on trace la grille de droite en ajoutant 
-margin + grid_size * cell_size pour décaler l’origine sur l’axe des X.
-@author TOTSKYI Hlib
-@author TERRENOIRE Yvan*)
-
-(* --- Étiquettes --- *)
-let label_left = "Ordinateur" in
-let label_right = "Joueur" in
-
-let label_y = margin + (cell_size * grid_size) + 20 in
-
-let label_left_x =
-  x_start_left + (grid_size * cell_size / 2) - (String.length label_left * 3)
-in
-let label_right_x =
-  x_start_right + (grid_size * cell_size / 2) - (String.length label_right * 3)
-in
-
-(* Dessin des étiquettes *)
-Graphics.moveto label_left_x label_y;
-Graphics.draw_string label_left;
-
-Graphics.moveto label_right_x label_y;
-Graphics.draw_string label_right;
-;;
-
-(**Commentaire:
-display_empty_grids dessine deux grilles vides l’une à côté de l’autre 
-dans la fenêtre graphique. Chaque grille possède grid_size lignes et colonnes, 
-et la taille de chaque case est déterminée par cell_size. 
-Les marges (définies par margin) sont utilisées pour espacer la première grille 
-du bord gauche de la fenêtre et pour séparer les deux grilles. 
-On trace d’abord la grille de gauche en utilisant les coordonnées de départ 
-x_start_left, y_start_left, puis on trace la grille de droite en ajoutant 
-margin + grid_size * cell_size pour décaler l’origine sur l’axe des X.
-@author TOTSKYI Hlib
-@author TERRENOIRE Yvan*)
-
-(*4*)
-let battleship_game () =
-  let params = init_params () in
-  let open_graph_command = Printf.sprintf " %dx%d" params.window_width params.window_height in
-  Graphics.open_graph open_graph_command;
-  Graphics.set_window_title "Bataille Navale";
+let battleship_game () : unit =
+  let params : t_params = init_params () in
+  let win_width : int = params.margin * 3 + params.grid_size * params.cell_size * 2 in
+  let win_height : int = params.margin * 2 + params.message_size + params.grid_size * params.cell_size in
+  let win_dim : string = " " ^ string_of_int win_width ^ "x" ^ string_of_int win_height in
+  open_graph win_dim;
+  set_window_title "Battleship";
   display_empty_grids params;
-  ignore (Graphics.read_key ());
-  Graphics.close_graph ();
-;;
+  let key : char = read_key () in
+  close_graph ()
+;;  
+(**
+Commentaire :
+Cette fonction principale orchestre l’exécution du programme.
+Elle réalise les étapes suivantes :
+- Appelle init_params pour obtenir les paramètres du jeu.
+- Calcule la largeur (win_width) et la hauteur (win_height) de la fenêtre en fonction de ces paramètres.
+- Construit la chaîne win_dim pour spécifier les dimensions de la fenêtre graphique.
+- Ouvre la fenêtre graphique avec open_graph et définit le titre via set_window_title.
+- Affiche les grilles en appelant display_empty_grids.
+- Attend la saisie d’une touche (stockée dans key) afin de maintenir l’affichage.
+- Ferme la fenêtre graphique avec close_graph.
+Les variables locales (params, win_width, win_height, win_dim, key) sont définies avec let pour structurer le code et améliorer la lisibilité.
+*)
 
-let () = battleship_game (); 
-
-(**Commentaire:
-battleship_game est la fonction principale du jeu "Bataille Navale". 
-Elle effectue les opérations suivantes :
-Initialise les paramètres du jeu en appelant init_params, qui détermine la taille 
-des grilles, la marge, la taille des cellules, etc.
-Construit la commande d'ouverture de la fenêtre graphique en fonction des dimensions 
-calculées window_width et window_height.
-Ouvre la fenêtre graphique avec Graphics.open_graph et définit le titre de la fenêtre 
-grâce à Graphics.set_window_title.
-Affiche les deux grilles vides côte à côte en appelant display_empty_grids params.
-Attend que l'utilisateur appuie sur une touche avec Graphics.read_key afin 
-de permettre la visualisation avant la fermeture.
-Ferme la fenêtre graphique avec Graphics.close_graph.
-@author TOTSKYI Hlib*)
-
-
-
+battleship_game ();;
+(**
+Commentaire :
+Cet appel lance le programme, exécutant la fonction principale battleship_game,
+qui ouvre la fenêtre graphique, affiche les grilles, attend une interaction utilisateur, puis ferme la fenêtre.
+*)
