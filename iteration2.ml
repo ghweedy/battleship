@@ -245,7 +245,7 @@ let battleship_game () : unit =
   let win_height : int = params.margin * 2 + params.message_size + params.grid_size * params.cell_size in
   let win_dim : string = " " ^ string_of_int win_width ^ "x" ^ string_of_int win_height in
   open_graph win_dim;
-  set_window_title "Battleship - Itération 2";
+  set_window_title "Bataille Navale";
   display_empty_grids params comp_grid player_grid;
   let _key : char = read_key () in  (* Attente d'une touche pour maintenir l'affichage *)
   close_graph ()
