@@ -3,7 +3,8 @@ open CPgraphics;;
 (**
 @author TOTSKYI Hlib
 @author TERRENOIRE Yvan
-@author AHAMADI Izaki*)
+@author AHAMADI Izaki
+*)
 
 (*Iteration 2*)
 
