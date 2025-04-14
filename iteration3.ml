@@ -48,7 +48,7 @@ type t_ship = {
   name : string;
   positions : (int * int) list;
 };;  
-(*
+(**
 Commentaire :
 La fonction init_params initialise et retourne une structure de type t_params, qui regroupe 
 tous les paramètres essentiels du jeu. Elle définit :
@@ -91,7 +91,7 @@ Elle reçoit :
 - length : la longueur du bateau (int).
 Le résultat est une liste de positions obtenue en appliquant le déplacement (next_pos) de manière répétée.
 @author TOTSKYI Hlib
-@author AHAMADI Izaki*
+@author AHAMADI Izaki
 *)
 
 let rec can_place_ship (grid, positions : t_grid * (int * int) list) : bool =
@@ -390,7 +390,7 @@ let battleship_game () : unit =
   let win_height = params.margin * 2 + params.message_size + params.grid_size * params.cell_size in
   let win_dim = " " ^ string_of_int win_width ^ "x" ^ string_of_int win_height in
   open_graph win_dim;
-  set_window_title "Battleship - Itération 3";
+  set_window_title "Bataille Navale";
   (* Affichage de la grille de l'ordinateur (vide) *)
   let y = params.margin + params.message_size in
   let x_comp = params.margin in
@@ -403,7 +403,7 @@ let battleship_game () : unit =
   display_grid_color (x_player, y, game.player_grid, params.cell_size);
   moveto x_player (y + params.grid_size * params.cell_size + 10);
   draw_string "Joueur";
-  let _key = read_key () in  (* Attente d'une touche pour maintenir l'affichage *)
+  let key = read_key () in  (* Attente d'une touche pour maintenir l'affichage *)
   close_graph ()
 ;;  
 (**
