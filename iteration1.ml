@@ -108,7 +108,7 @@ let battleship_game () : unit =
   let win_height : int = params.margin * 2 + params.message_size + params.grid_size * params.cell_size in
   let win_dim : string = " " ^ string_of_int win_width ^ "x" ^ string_of_int win_height in
   open_graph win_dim;
-  set_window_title "Battleship";
+  set_window_title "Bataille Navale";
   display_empty_grids params;
   let key : char = read_key () in
   close_graph ()
@@ -128,8 +128,3 @@ Les variables locales (params, win_width, win_height, win_dim, key) sont défini
 *)
 
 battleship_game ();;
-(**
-Commentaire :
-Cet appel lance le programme, exécutant la fonction principale battleship_game,
-qui ouvre la fenêtre graphique, affiche les grilles, attend une interaction utilisateur, puis ferme la fenêtre.
-*)
