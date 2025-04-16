@@ -73,19 +73,19 @@ sur la grille.
 let draw_grid (x0, y0, grid_size, cell_size : int * int * int * int) : unit =
   for i = 0 to grid_size do
     let x = x0 + i * cell_size in
-    moveto x y0;
-    lineto x (y0 + grid_size * cell_size)
+    moveto (x, y0);
+    lineto (x, y0 + grid_size * cell_size)
   done;
   for j = 0 to grid_size do
     let y = y0 + j * cell_size in
-    moveto x0 y;
-    lineto (x0 + grid_size * cell_size) y
+    moveto (x0, y);
+    lineto (x0 + grid_size * cell_size, y) 
   done
 ;;
 
 let display_grid (x, y, params, label : int * int * t_params * string) : unit =
   draw_grid (x, y, params.grid_size, params.cell_size);
-  moveto x (y + params.grid_size * params.cell_size + 10);
+  moveto (x, y + params.grid_size * params.cell_size + 10);
   draw_string label
 ;;
 
@@ -203,10 +203,10 @@ Le résultat est un couple (x, y) indiquant la position en pixels.
 @author AHAMADI Izaki
 *)
 
-let color_cell (x0, y0, i, j, cell_size, col : int * int * int * int * int * CPGraphics.color) : unit =
+let color_cell (x0, y0, i, j, cell_size, col : int * int * int * int * int * Graphics.color) : unit =
   set_color col;
   let (px, py) = cell_to_pixel (x0, y0, i, j, cell_size) in
-  fill_rect px py cell_size cell_size
+  fill_rect (px, py, cell_size, cell_size)
 ;;
 (**
 Commentaire :
@@ -248,17 +248,18 @@ Cette version de display_grid_color parcourt la grille et colore les cases en fo
 *)
 
 let display_message (msgs, params, win_width : string list * t_params * int) : unit =
-  set_color white;
-  fill_rect params.margin 0 (win_width - 2 * params.margin) params.message_size;
-  set_color black;
-  let rec aux (l : string list) (y : int) : unit =
-    if l = [] then () else (
-      moveto (params.margin + 5) y;
+  set_color Graphics.white;
+  fill_rect  (params.margin, 0, win_width - 2 * params.margin, params.message_size);
+  set_color Graphics.black;
+  let rec aux (l, y: string list * int) : unit =
+    if l = [] then () 
+    else (
+      moveto (params.margin + 5, y);
       draw_string (List.hd l);
-      aux (List.tl l) (y - 15)
+      aux (List.tl l, y - 15)
     )
   in
-  aux msgs (params.margin + params.message_size - 15)
+  aux (msgs, params.margin + params.message_size - 15)
 ;;
 (**
 Commentaire :
@@ -273,7 +274,7 @@ La fonction auxiliaire aux (récursive) permet d'afficher chaque message sur une
 *)
 
 let read_mouse (params : t_params) : (int * int) =
-  let event = wait_next_event [Button_down] in
+  let event = Graphics.wait_next_event [Button_down] in
   let mx = event.mouse_x and my = event.mouse_y in
   let x_player = params.margin * 2 + params.grid_size * params.cell_size in
   let y_grid = params.margin + params.message_size in
@@ -303,7 +304,7 @@ let rec manual_placing_ship_list (grid, ships, params : t_grid * (string * int) 
   else
     let (name, len) = List.hd ships in
     let win_width = params.margin * 3 + params.grid_size * params.cell_size * 2 in
-    display_message [ "Placez le " ^ name ^ " (longueur " ^ string_of_int len ^ ")" ] params win_width;
+    display_message (["Placez le " ^ name ^ " (longueur " ^ string_of_int len ^ ")"], params, win_width);
     let first_cell = read_mouse params in
     if first_cell = (-1, -1) then
       manual_placing_ship_list (grid, ships, params)
@@ -322,13 +323,13 @@ let rec manual_placing_ship_list (grid, ships, params : t_grid * (string * int) 
           else -1
         in
         if dir = -1 then (
-          display_message ["Erreur: case non contigue. Réessayez."] params win_width;
+          display_message (["Erreur: case non contigue. Réessayez."], params, win_width);
           manual_placing_ship_list (grid, ships, params)
         )
         else
           let pos_list = positions_list ((i1, j1), dir, len) in
           if not (can_place_ship (grid, pos_list)) then (
-            display_message ["Placement impossible. Réessayez."] params win_width;
+            display_message (["Placement impossible. Réessayez."], params, win_width);
             manual_placing_ship_list (grid, ships, params)
           )
           else (
@@ -371,7 +372,7 @@ let rec exists (x, lst: 'a * 'a list) : bool =
   else if List.hd lst = x 
     then true
      else 
-    exists x (List.tl lst)
+    exists (x, List.tl lst)
 ;;
 (**
 Commentaire :
@@ -380,12 +381,13 @@ Le paramètre x est polymorphe ('a) pour être compatible avec tout type.
 @author TOTSKYI Hlib
 *)
 
-let rec all_listes (f, lst: 'a * 'a list) : bool =
+let rec all_listes (f, lst: int * int list) : bool =
   if lst = [] 
   then true
-  else if f (List.hd lst) 
-  then all_listes f (List.tl lst)
-  else false
+  else if f = (List.hd lst) 
+  then all_listes (f, List.tl lst)
+  else
+   false
 ;;
 (**
 Commentaire :
@@ -396,7 +398,7 @@ all_listes vérifie si la fonction f est vraie pour tous les éléments de la li
 let rec appl (f, lst: 'a * 'a list) : unit =
   if lst = [] then ()
    else 
-    (f (List.hd lst); appl f (List.tl lst))
+    ( (f, List.hd lst); appl (f, List.tl lst))
 ;;
 (**
 Commentaire :
@@ -415,14 +417,13 @@ check_cell retourne true si la case (i, j) dans grid a la valeur 3 (bateau touch
 *)
 
 let check_sunk_ship (ship, grid: t_ship * t_grid) : bool =
-  my_for_all (check_cell, ship.positions)
+  all_listes (check_cell.grid, ship.positions)
 ;;
 (**
 check_sunk_ship retourne true si toutes les positions du bateau sont à 3 dans grid, indiquant qu'il est coulé.
 @author TERRENOIRE Yvan
 *)
 
-(* set_cell : met à jour la case d'une position en la passant à 4 *)
 let set_cell (grid, pos : t_grid * (int * int)) : unit =
   let (i, j) : int * int = pos in
   grid.(j).(i) <- 4
@@ -467,7 +468,7 @@ let rec find_ship (ships, pos : t_ship list * (int * int)) : t_ship =
     let ship : t_ship = List.hd ships in
     if exists (pos, ship.positions) 
       then ship
-    else find_ship (List.tl ships) pos
+    else find_ship (List.tl ships, pos) 
 ;;
 (**
 Commentaire :
