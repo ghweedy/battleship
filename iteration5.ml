@@ -381,7 +381,7 @@ Le paramètre x est polymorphe ('a) pour être compatible avec tout type.
 @author TOTSKYI Hlib
 *)
 
-let rec all_listes (f, lst: int * int list) : bool =
+let rec all_listes (f, lst: (int * int) * (int * int) list) : bool =
   if lst = [] 
   then true
   else if f = (List.hd lst) 
@@ -410,6 +410,7 @@ let check_cell (grid, pos: t_grid * (int * int)) : bool =
   let (i, j) : int * int = pos in
   grid.(j).(i) = 3
 ;;
+
 (**
 Commentaire :
 check_cell retourne true si la case (i, j) dans grid a la valeur 3 (bateau touché).
@@ -417,7 +418,7 @@ check_cell retourne true si la case (i, j) dans grid a la valeur 3 (bateau touch
 *)
 
 let check_sunk_ship (ship, grid: t_ship * t_grid) : bool =
-  all_listes (check_cell.grid, ship.positions)
+  all_listes (check_cell, ship.positions)
 ;;
 (**
 check_sunk_ship retourne true si toutes les positions du bateau sont à 3 dans grid, indiquant qu'il est coulé.
@@ -486,11 +487,11 @@ let player_shoot (grid, ships, params: t_grid * t_ship list * t_params) : t_ship
     if cell_val = 2 || cell_val = 3 || cell_val = 4 then
       ships
     else
-      let update_result : unit = update_grid grid (i, j) in
+      let update_result : unit = update_grid (grid, (i, j)) in
       if grid.(j).(i) = 3 then
-        let found_ship : t_ship = find_ship ships (i, j) in
-        if check_sunk_ship found_ship grid then
-          let sink_result : unit = sink_ship found_ship grid in
+        let found_ship : t_ship = find_ship (ships, (i, j)) in
+        if check_sunk_ship (found_ship, grid) then
+          let sink_result : unit = sink_ship (found_ship, grid) in
           let message_result : unit = display_message ["Bateau coulé !"] params (params.margin * 3 + params.grid_size * params.cell_size * 2) in
           ships
         else
