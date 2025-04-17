@@ -96,60 +96,6 @@ Le résultat est une grille graphique de dimensions grid_size × grid_size.
 @author TOTSKYI Hlib
 *)
 
-let rec draw_letters (letters, i : string list * int) : unit =
-  if letters = [] then ()
-  else
-    let x : int = x0 + i * cell_size + (cell_size / 4) in
-    let y : int = y0 + grid_size * cell_size + 5 in
-    moveto (x, y);
-    draw_string (List.hd letters);
-    draw_letters (List.tl letters, i + 1)
-in
-draw_letters (["A"; "B"; "C"; "D"; "E"; "F"; "G"; "H"; "I"; "J"], 0)
-;;
-(**
-Commentaire :
-Cette fonction récursive affiche les lettres A à J au-dessus de la grille pour représenter les colonnes.
-Elle reçoit :
-- letters : une liste de chaînes de caractères représentant les lettres à afficher (string list),
-- i : un entier indiquant l’indice de la lettre en cours (int).
-Pour chaque lettre :
-- Elle calcule les coordonnées x et y où afficher la lettre,
-  en fonction de la position initiale (x0, y0), de la taille des cellules, et de l’indice i.
-- Elle déplace le curseur avec moveto, puis affiche la lettre avec draw_string.
-La fonction appelle récursivement draw_letters pour passer à la lettre suivante.
-Cette procédure est utilisée pour étiqueter les colonnes de A à J au-dessus de la grille.
-@author TOTSKYI Hlib
-*)
-
-
-let rec draw_numbers (numbers, j : string list * int) : unit =
-  if numbers = [] then ()
-  else
-    let x : int = x0 - (cell_size / 2) in
-    let y : int = y0 + j * cell_size + (cell_size / 4) in
-    moveto (x, y);
-    draw_string (List.hd numbers);
-    draw_numbers (List.tl numbers, j + 1)
-in
-draw_numbers (["1"; "2"; "3"; "4"; "5"; "6"; "7"; "8"; "9"; "10"], 0)
-;;
-(**
-Commentaire :
-Cette fonction récursive affiche les numéros de 1 à 10 à gauche de la grille pour représenter les lignes.
-Elle reçoit :
-- numbers : une liste de chaînes de caractères représentant les numéros à afficher (string list),
-- j : un entier indiquant l’indice de la ligne en cours (int).
-Pour chaque numéro :
-- Elle calcule les coordonnées x et y où afficher le numéro,
-  en fonction de la position initiale (x0, y0), de la taille des cellules, et de l’indice j.
-- Elle déplace le curseur avec moveto, puis affiche le numéro avec draw_string.
-La fonction appelle récursivement draw_numbers pour passer au numéro suivant.
-Cette procédure est utilisée pour étiqueter les lignes de 1 à 10 à gauche de la grille.
-@author TOTSKYI Hlib
-*)
-
-
 let display_grid (x, y, params, label : int * int * t_params * string) : unit =
   draw_grid (x, y, params.grid_size, params.cell_size);
   moveto (x, y + params.grid_size * params.cell_size + 10);
@@ -329,9 +275,9 @@ Cette version de display_grid_color parcourt la grille et colore les cases en fo
 *)
 
 let display_message (msgs, params, win_width : string list * t_params * int) : unit =
-  set_color Graphics.white;
+  set_color white;
   fill_rect  (params.margin, 0, win_width - 2 * params.margin, params.message_size);
-  set_color Graphics.black;
+  set_color black;
   let rec aux (l, y: string list * int) : unit =
     if l = [] then () 
     else (
@@ -499,9 +445,17 @@ check_cell retourne true si la case (i, j) dans grid a la valeur 3 (bateau touch
 *)
 
 let check_sunk_ship (ship, grid : t_ship * t_grid) : bool =
-  let p_f (pos: (int * int)) = 
-    check_cell (grid, pos) in
-  all_listes (p_f, ship.positions)
+  let rec check_list (p_a : (int * int) list): bool = 
+  if p_a = []
+      then true
+  else
+    let pos : (int * int) = List.hd p_a in 
+  if check_cell (grid, pos) = true 
+      then 
+        check_list (List.tl p_a)
+  else 
+    false in 
+    check_list (ship.positions)
 ;;
 (**
 check_sunk_ship retourne true si toutes les positions du bateau sont à 3 dans grid, indiquant qu'il est coulé.
@@ -519,9 +473,13 @@ set_cell modifie la case correspondant à pos dans grid en lui assignant 4, indi
 *)
 
 let sink_ship (ship, grid : t_ship * t_grid) : unit =
-  let p_f0 (pos: (int * int)) =
-    set_cell (grid, pos) in
-  appl (p_f0, ship.positions)
+ let rec mark_positions (p_b: (int * int) list) : unit = 
+  if p_b = [] then ()
+  else
+    let pos : (int * int) = List.hd p_b in 
+    let p_b1 : unit = set_cell (grid, pos) in
+  mark_positions (List.tl p_b) in
+mark_positions (ship.positions)
 ;;
 (**
 Commentaire :
@@ -564,7 +522,7 @@ Si aucun bateau n'est trouvé, un bateau "ship" est retourné.
 *)
 
 let player_shoot (grid, ships, params: t_grid * t_ship list * t_params) : t_ship list =
-  let (i, j) : int * int = read_mouse.params in
+  let (i, j) : int * int = read_mouse params in
   if i = -1 && j = -1 then
     ships
   else
@@ -625,9 +583,15 @@ check_cell_x retourne true si la cellule (i, j) vaut 4, c'est-à-dire si le bate
 *)
 
 let ship_sunk (ship, grid : t_ship * t_grid) : bool =
-  let p_f1 (pos : int * int) = 
-    check_cell_x (grid, pos) in
-  all_listes (p_f1, ship.positions)
+  let rec ship_sunk_aux (p_c: (int * int) list) : bool = 
+    if p_c = [] 
+      then true
+  else 
+    let (i, j) : int * int = List.hd p_c in
+  if grid.(j).(i) = 4 then ship_sunk_aux (List.tl p_c)
+  else false
+in
+ship_sunk_aux (ship.positions)
 ;;
 (**
 Commentaire :
@@ -675,6 +639,23 @@ et le marque comme coulé avec sink_ship si nécessaire.
 @author TOTSKYI Hlib
 *)
 
+type t_battleship = {
+  comp_grid : t_grid;
+  player_grid : t_grid;
+  comp_ships : t_ship list;
+  player_ships : t_ship list;
+};;  
+(**
+Commentaire :
+Ce type structuré regroupe les éléments essentiels du jeu :
+- comp_grid : la grille de l'ordinateur (t_grid),
+- player_grid : la grille du joueur (t_grid),
+- comp_ships : la liste des bateaux placés pour l'ordinateur (t_ship list),
+- player_ships : la liste des bateaux placés pour le joueur (t_ship list).
+Il sert à stocker l'état initial du jeu après le placement des bateaux.
+@author TOTSKYI Hlib
+*)
+
 let rec all_shoot (game, params : t_battleship * t_params) : unit =
   if all_sunk (game.comp_ships, game.comp_grid) then
     display_message (["Vous avez gagné !"], params, params.margin * 3 + params.grid_size * params.cell_size * 2)
@@ -710,23 +691,6 @@ Sinon, on effectue un tour de tirs pour chaque côté et on recommence récursiv
 @author TOTSKYI Hlib
 *)
 
-type t_battleship = {
-  comp_grid : t_grid;
-  player_grid : t_grid;
-  comp_ships : t_ship list;
-  player_ships : t_ship list;
-};;  
-(**
-Commentaire :
-Ce type structuré regroupe les éléments essentiels du jeu :
-- comp_grid : la grille de l'ordinateur (t_grid),
-- player_grid : la grille du joueur (t_grid),
-- comp_ships : la liste des bateaux placés pour l'ordinateur (t_ship list),
-- player_ships : la liste des bateaux placés pour le joueur (t_ship list).
-Il sert à stocker l'état initial du jeu après le placement des bateaux.
-@author TOTSKYI Hlib
-*)
-
 let init_battleship (params : t_params) : t_battleship =
   let grid_size : int = params.grid_size in
   let comp_grid : t_grid = init_grid grid_size in
@@ -738,7 +702,8 @@ let init_battleship (params : t_params) : t_battleship =
     player_grid = player_grid;
     comp_ships = comp_ships;
     player_ships = player_ships
-  };;
+  }
+;;
 (**
 Commentaire :
 Cette fonction initialise l'état du jeu (t_battleship).
@@ -765,8 +730,9 @@ let battleship_game () : unit =
   } in
   let win_width : int = params.margin * 3 + params.grid_size * params.cell_size * 2 in
   let win_height : int = params.margin * 2 + params.message_size + params.grid_size * params.cell_size in
-  let win_dim : string = " " ^ string_of_int win_width ^ "x" ^ string_of_int win_height in
-  open_graph win_dim;
+  let win_dim : string = 
+    "" ^ string_of_int win_width ^ "x" ^ string_of_int win_height in
+  open_graph (win_dim);
   set_window_title "Bataille Navale";
   let y_grid : int = params.margin + params.message_size in
   let x_comp : int = params.margin in
@@ -781,7 +747,8 @@ let battleship_game () : unit =
   draw_string "Joueur";
   all_shoot (game, params);
   let key : int = read_key () in
-  close_graph ();;
+  close_graph ()
+;;
 (**
 Commentaire :
 battleship_game orchestre le jeu complet en alternant les tirs du joueur et de l'ordinateur jusqu'à ce qu'une partie gagne.
