@@ -731,8 +731,8 @@ let battleship_game () : unit =
   let win_width : int = params.margin * 3 + params.grid_size * params.cell_size * 2 in
   let win_height : int = params.margin * 2 + params.message_size + params.grid_size * params.cell_size in
   let win_dim : string = 
-    "" ^ string_of_int win_width ^ "x" ^ string_of_int win_height in
-  Graphics.open_graph win_dim;
+  "" ^ string_of_int win_width ^ "x" ^ string_of_int win_height in
+  open_graph (1000, 1000);
   set_window_title "Bataille Navale";
   let y_grid : int = params.margin + params.message_size in
   let x_comp : int = params.margin in
