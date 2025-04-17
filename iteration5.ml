@@ -644,7 +644,8 @@ type t_battleship = {
   player_grid : t_grid;
   comp_ships : t_ship list;
   player_ships : t_ship list;
-};;  
+}
+;;  
 (**
 Commentaire :
 Ce type structuré regroupe les éléments essentiels du jeu :
@@ -728,10 +729,6 @@ let battleship_game () : unit =
     comp_ships = comp_ships;
     player_ships = player_ships
   } in
-  let win_width : int = params.margin * 3 + params.grid_size * params.cell_size * 2 in
-  let win_height : int = params.margin * 2 + params.message_size + params.grid_size * params.cell_size in
-  let win_dim : string = 
-  "" ^ string_of_int win_width ^ "x" ^ string_of_int win_height in
   open_graph (1000, 1000);
   set_window_title "Bataille Navale";
   let y_grid : int = params.margin + params.message_size in
