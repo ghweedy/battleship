@@ -732,7 +732,7 @@ let battleship_game () : unit =
   let win_height : int = params.margin * 2 + params.message_size + params.grid_size * params.cell_size in
   let win_dim : string = 
     "" ^ string_of_int win_width ^ "x" ^ string_of_int win_height in
-  open_graph (win_dim);
+  Graphics.open_graph win_dim;
   set_window_title "Bataille Navale";
   let y_grid : int = params.margin + params.message_size in
   let x_comp : int = params.margin in
@@ -746,7 +746,7 @@ let battleship_game () : unit =
   moveto (x_player, y_grid + params.grid_size * params.cell_size + 10);
   draw_string "Joueur";
   all_shoot (game, params);
-  let key : int = read_key () in
+  let key : char = Graphics.read_key () in
   close_graph ()
 ;;
 (**
