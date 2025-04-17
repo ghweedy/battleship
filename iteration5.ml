@@ -417,8 +417,10 @@ check_cell retourne true si la case (i, j) dans grid a la valeur 3 (bateau touch
 @author AHAMADI Izaki
 *)
 
-let check_sunk_ship (ship, grid: t_ship * t_grid) : bool =
-  all_listes (check_cell, ship.positions)
+let check_sunk_ship (ship, grid : t_ship * t_grid) : bool =
+  let p_f (pos: (int * int)) = 
+    check_cell (grid, pos) in
+  all_listes (p_f, ship.positions)
 ;;
 (**
 check_sunk_ship retourne true si toutes les positions du bateau sont à 3 dans grid, indiquant qu'il est coulé.
@@ -435,8 +437,10 @@ set_cell modifie la case correspondant à pos dans grid en lui assignant 4, indi
 @author AHAMADI Izaki
 *)
 
-let sink_ship (ship, grid: t_ship * t_grid) : unit =
-  appl (set_cell, ship.positions)
+let sink_ship (ship, grid : t_ship * t_grid) : unit =
+  let p_f0 (pos: (int * int)) =
+    set_cell (grid, pos) in
+  appl (p_f0, ship.positions)
 ;;
 (**
 Commentaire :
@@ -479,7 +483,7 @@ Si aucun bateau n'est trouvé, un bateau "ship" est retourné.
 *)
 
 let player_shoot (grid, ships, params: t_grid * t_ship list * t_params) : t_ship list =
-  let (i, j) : int * int = read_mouse params in
+  let (i, j) : int * int = read_mouse.params in
   if i = -1 && j = -1 then
     ships
   else
@@ -492,7 +496,7 @@ let player_shoot (grid, ships, params: t_grid * t_ship list * t_params) : t_ship
         let found_ship : t_ship = find_ship (ships, (i, j)) in
         if check_sunk_ship (found_ship, grid) then
           let sink_result : unit = sink_ship (found_ship, grid) in
-          let message_result : unit = display_message ["Bateau coulé !"] params (params.margin * 3 + params.grid_size * params.cell_size * 2) in
+          let message_result : unit = display_message (["Bateau coulé !"], params, (params.margin * 3 + params.grid_size * params.cell_size * 2)) in
           ships
         else
           ships
@@ -514,12 +518,13 @@ let rec player_turns (grid, ships, params, n: t_grid * t_ship list * t_params * 
   if n = 0 then
     ()
   else
-    let updated_ships : t_ship list = player_shoot grid ships params in
+    let updated_ships : t_ship list = 
+      player_shoot (grid, ships, params) in
     let x_player : int = params.margin * 2 + params.grid_size * params.cell_size in
     let y_grid : int = params.margin + params.message_size in
-    let () : unit = draw_grid (x_player, y_grid, params.grid_size, params.cell_size) in
-    let () : unit = display_grid_color (x_player, y_grid, grid, params.cell_size) in
-    player_turns grid updated_ships params (n - 1)
+    let l_u0 : unit = draw_grid (x_player, y_grid, params.grid_size, params.cell_size) in
+    let l_u1 : unit = display_grid_color (x_player, y_grid, grid, params.cell_size) in
+    player_turns (grid, updated_ships, params, (n - 1))
 ;;
 (**
 Commentaire :
@@ -538,8 +543,10 @@ check_cell_x retourne true si la cellule (i, j) vaut 4, c'est-à-dire si le bate
 @author TERRENOIRE Yvan
 *)
 
-let ship_sunk (ship, grid: t_ship * t_grid) : bool =
-  all_listes (check_cell_4, ship.positions)
+let ship_sunk (ship, grid : t_ship * t_grid) : bool =
+  let p_f1 (pos : int * int) = 
+    check_cell_x (grid, pos) in
+  all_listes (p_f1, ship.positions)
 ;;
 (**
 Commentaire :
@@ -547,13 +554,11 @@ ship_sunk vérifie que toutes les cellules occupées par le bateau sont à 4, in
 @author AHAMADI Izaki
 *)
 
-let rec all_sunk (ships, grid: t_ship list * t_grid) : bool =
-  if ships = [] then
-    true
-  else if ship_sunk (List.hd ships) grid then
-    all_sunk (List.tl ships) grid
-  else
-    false
+let rec all_sunk (ships, grid : t_ship list * t_grid) : bool =
+  if ships = [] then true
+  else if ship_sunk (List.hd ships, grid) then
+    all_sunk (List.tl ships, grid)
+  else false
 ;;
 (**
 Commentaire :
@@ -562,18 +567,18 @@ all_sunk retourne true si tous les bateaux de la liste sont coulés (toutes leur
 @author TERRENOIRE Yvan
 *)
 
-let rec computer_shoot (grid, ships, params: t_grid * t_ship list * t_params) : t_ship list =
+let rec computer_shoot (grid, ships, params : t_grid * t_ship list * t_params) : t_ship list =
   let n : int = Array.length grid in
   let i : int = Random.int n in
   let j : int = Random.int n in
   if grid.(j).(i) = 2 || grid.(j).(i) = 3 || grid.(j).(i) = 4 then
-    computer_shoot grid ships params
+    computer_shoot (grid, ships, params)
   else
-    let () : unit = update_grid grid (i, j) in
+    let () : unit = update_grid (grid, (i, j)) in
     if grid.(j).(i) = 3 then
-      let found_ship : t_ship = find_ship ships (i, j) in
-      if check_sunk_ship found_ship grid then
-        let () : unit = sink_ship found_ship grid in
+      let found_ship : t_ship = find_ship (ships, (i, j)) in
+      if check_sunk_ship (found_ship, grid) then
+        let () : unit = sink_ship (found_ship, grid) in
         ships
       else
         ships
@@ -589,29 +594,31 @@ et le marque comme coulé avec sink_ship si nécessaire.
 @author TOTSKYI Hlib
 *)
 
-let rec all_shoot (game, params: t_battleship * t_params) : unit =
-  if all_sunk game.comp_ships game.comp_grid then
-    display_message ["Vous avez gagné !"] params (params.margin * 3 + params.grid_size * params.cell_size * 2)
-  else if all_sunk game.player_ships game.player_grid then
-    display_message ["Vous avez perdu !"] params (params.margin * 3 + params.grid_size * params.cell_size * 2)
+let rec all_shoot (game, params : t_battleship * t_params) : unit =
+  if all_sunk (game.comp_ships, game.comp_grid) then
+    display_message (["Vous avez gagné !"], params, params.margin * 3 + params.grid_size * params.cell_size * 2)
+  else if all_sunk (game.player_ships, game.player_grid) then
+    display_message (["Vous avez perdu !"], params, params.margin * 3 + params.grid_size * params.cell_size * 2)
   else
-    let updated_comp_ships : t_ship list = player_shoot game.comp_grid game.comp_ships params in
-    let updated_player_ships : t_ship list = computer_shoot game.player_grid game.player_ships params in
+    let updated_comp_ships : t_ship list = player_shoot (game.comp_grid, game.comp_ships, params) in
+    let updated_player_ships : t_ship list = computer_shoot (game.player_grid, game.player_ships, params) in
     let x_comp : int = params.margin in
     let x_player : int = params.margin * 2 + params.grid_size * params.cell_size in
     let y_grid : int = params.margin + params.message_size in
-    draw_grid x_comp y_grid params.grid_size params.cell_size;
-    display_grid_color x_comp y_grid game.comp_grid params.cell_size;
-    moveto x_comp (y_grid + params.grid_size * params.cell_size + 10);
+    draw_grid (x_comp, y_grid, params.grid_size, params.cell_size);
+    display_grid_color (x_comp, y_grid, game.comp_grid, params.cell_size);
+    moveto (x_comp, y_grid + params.grid_size * params.cell_size + 10);
     draw_string "Ordinateur";
-    draw_grid x_player y_grid params.grid_size params.cell_size;
-    display_grid_color x_player y_grid game.player_grid params.cell_size;
-    moveto x_player (y_grid + params.grid_size * params.cell_size + 10);
+    draw_grid (x_player, y_grid, params.grid_size, params.cell_size);
+    display_grid_color (x_player, y_grid, game.player_grid, params.cell_size);
+    moveto (x_player, y_grid + params.grid_size * params.cell_size + 10);
     draw_string "Joueur";
-    all_shoot { comp_grid = game.comp_grid;
-    player_grid = game.player_grid;
-    comp_ships = updated_comp_ships;
-    player_ships = updated_player_ships } params
+    all_shoot ({
+      comp_grid = game.comp_grid;
+      player_grid = game.player_grid;
+      comp_ships = updated_comp_ships;
+      player_ships = updated_player_ships
+    }, params)
 ;;
 (**
 Commentaire :
@@ -643,13 +650,14 @@ let init_battleship (params : t_params) : t_battleship =
   let grid_size : int = params.grid_size in
   let comp_grid : t_grid = init_grid grid_size in
   let player_grid : t_grid = init_grid grid_size in
-  let comp_ships : t_ship list = auto_placing_ships comp_grid params.ship_sizes in
-  let player_ships : t_ship list = auto_placing_ships player_grid params.ship_sizes in
-  { comp_grid = comp_grid;
+  let comp_ships : t_ship list = auto_placing_ships (comp_grid, params.ship_sizes) in
+  let player_ships : t_ship list = auto_placing_ships (player_grid, params.ship_sizes) in
+  {
+    comp_grid = comp_grid;
     player_grid = player_grid;
     comp_ships = comp_ships;
-    player_ships = player_ships }
-;;
+    player_ships = player_ships
+  };;
 (**
 Commentaire :
 Cette fonction initialise l'état du jeu (t_battleship).
@@ -666,9 +674,14 @@ let battleship_game () : unit =
   let params : t_params = init_params () in
   let comp_grid : t_grid = init_grid params.grid_size in
   let player_grid : t_grid = init_grid params.grid_size in
-  let comp_ships : t_ship list = auto_placing_ships comp_grid params.ship_sizes in
-  let player_ships : t_ship list = auto_placing_ships player_grid params.ship_sizes in
-  let game : t_battleship = { comp_grid = comp_grid; player_grid = player_grid; comp_ships = comp_ships; player_ships = player_ships } in
+  let comp_ships : t_ship list = auto_placing_ships (comp_grid, params.ship_sizes) in
+  let player_ships : t_ship list = auto_placing_ships (player_grid, params.ship_sizes) in
+  let game : t_battleship = {
+    comp_grid = comp_grid;
+    player_grid = player_grid;
+    comp_ships = comp_ships;
+    player_ships = player_ships
+  } in
   let win_width : int = params.margin * 3 + params.grid_size * params.cell_size * 2 in
   let win_height : int = params.margin * 2 + params.message_size + params.grid_size * params.cell_size in
   let win_dim : string = " " ^ string_of_int win_width ^ "x" ^ string_of_int win_height in
@@ -677,18 +690,17 @@ let battleship_game () : unit =
   let y_grid : int = params.margin + params.message_size in
   let x_comp : int = params.margin in
   let x_player : int = params.margin * 2 + params.grid_size * params.cell_size in
-  draw_grid x_comp y_grid params.grid_size params.cell_size;
-  display_grid_color x_comp y_grid game.comp_grid params.cell_size;
-  moveto x_comp (y_grid + params.grid_size * params.cell_size + 10);
+  draw_grid (x_comp, y_grid, params.grid_size, params.cell_size);
+  display_grid_color (x_comp, y_grid, game.comp_grid, params.cell_size);
+  moveto (x_comp, y_grid + params.grid_size * params.cell_size + 10);
   draw_string "Ordinateur";
-  draw_grid x_player y_grid params.grid_size params.cell_size;
-  display_grid_color x_player y_grid game.player_grid params.cell_size;
-  moveto x_player (y_grid + params.grid_size * params.cell_size + 10);
+  draw_grid (x_player, y_grid, params.grid_size, params.cell_size);
+  display_grid_color (x_player, y_grid, game.player_grid, params.cell_size);
+  moveto (x_player, y_grid + params.grid_size * params.cell_size + 10);
   draw_string "Joueur";
-  all_shoot game params;
-  let _ : int = read_key () in
-  close_graph ()
-;;
+  all_shoot (game, params);
+  let key : int = read_key () in
+  close_graph ();;
 (**
 Commentaire :
 battleship_game orchestre le jeu complet en alternant les tirs du joueur et de l'ordinateur jusqu'à ce qu'une partie gagne.
