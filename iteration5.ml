@@ -82,12 +82,93 @@ let draw_grid (x0, y0, grid_size, cell_size : int * int * int * int) : unit =
     lineto (x0 + grid_size * cell_size, y) 
   done
 ;;
+(**
+Commentaire :
+Cette fonction trace une grille carrée composée de lignes horizontales et verticales.
+Elle reçoit :
+- x0, y0 : les coordonnées du coin inférieur gauche de la grille (int * int),
+- grid_size : le nombre de cellules par côté (int),
+- cell_size : la taille d’une cellule en pixels (int).
+Elle utilise deux boucles :
+- La première pour dessiner les lignes verticales,
+- La seconde pour dessiner les lignes horizontales.
+Le résultat est une grille graphique de dimensions grid_size × grid_size.
+@author TOTSKYI Hlib
+*)
+
+let rec draw_letters (letters, i : string list * int) : unit =
+  if letters = [] then ()
+  else
+    let x : int = x0 + i * cell_size + (cell_size / 4) in
+    let y : int = y0 + grid_size * cell_size + 5 in
+    moveto (x, y);
+    draw_string (List.hd letters);
+    draw_letters (List.tl letters, i + 1)
+in
+draw_letters (["A"; "B"; "C"; "D"; "E"; "F"; "G"; "H"; "I"; "J"], 0)
+;;
+(**
+Commentaire :
+Cette fonction récursive affiche les lettres A à J au-dessus de la grille pour représenter les colonnes.
+Elle reçoit :
+- letters : une liste de chaînes de caractères représentant les lettres à afficher (string list),
+- i : un entier indiquant l’indice de la lettre en cours (int).
+Pour chaque lettre :
+- Elle calcule les coordonnées x et y où afficher la lettre,
+  en fonction de la position initiale (x0, y0), de la taille des cellules, et de l’indice i.
+- Elle déplace le curseur avec moveto, puis affiche la lettre avec draw_string.
+La fonction appelle récursivement draw_letters pour passer à la lettre suivante.
+Cette procédure est utilisée pour étiqueter les colonnes de A à J au-dessus de la grille.
+@author TOTSKYI Hlib
+*)
+
+
+let rec draw_numbers (numbers, j : string list * int) : unit =
+  if numbers = [] then ()
+  else
+    let x : int = x0 - (cell_size / 2) in
+    let y : int = y0 + j * cell_size + (cell_size / 4) in
+    moveto (x, y);
+    draw_string (List.hd numbers);
+    draw_numbers (List.tl numbers, j + 1)
+in
+draw_numbers (["1"; "2"; "3"; "4"; "5"; "6"; "7"; "8"; "9"; "10"], 0)
+;;
+(**
+Commentaire :
+Cette fonction récursive affiche les numéros de 1 à 10 à gauche de la grille pour représenter les lignes.
+Elle reçoit :
+- numbers : une liste de chaînes de caractères représentant les numéros à afficher (string list),
+- j : un entier indiquant l’indice de la ligne en cours (int).
+Pour chaque numéro :
+- Elle calcule les coordonnées x et y où afficher le numéro,
+  en fonction de la position initiale (x0, y0), de la taille des cellules, et de l’indice j.
+- Elle déplace le curseur avec moveto, puis affiche le numéro avec draw_string.
+La fonction appelle récursivement draw_numbers pour passer au numéro suivant.
+Cette procédure est utilisée pour étiqueter les lignes de 1 à 10 à gauche de la grille.
+@author TOTSKYI Hlib
+*)
+
 
 let display_grid (x, y, params, label : int * int * t_params * string) : unit =
   draw_grid (x, y, params.grid_size, params.cell_size);
   moveto (x, y + params.grid_size * params.cell_size + 10);
   draw_string label
 ;;
+(**
+Commentaire :
+Cette fonction affiche une grille vide accompagnée d’un label au-dessus.
+Elle reçoit :
+- x, y : les coordonnées du coin inférieur gauche de la grille (int * int),
+- params : une structure contenant les paramètres du jeu, notamment la taille des cellules et de la grille (t_params),
+- label : le texte à afficher au-dessus de la grille (string).
+La fonction appelle :
+- draw_grid pour dessiner la grille à la position (x, y),
+- moveto puis draw_string pour afficher le label centré au-dessus de la grille.
+Cette procédure est utilisée pour afficher soit la grille du joueur, soit celle de l’ordinateur.
+@author TOTSKYI Hlib
+*)
+
 
 let rec positions_list (pos, dir, length : (int * int) * int * int) : (int * int) list =
   if length = 0 then []
