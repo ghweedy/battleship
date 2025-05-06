@@ -267,17 +267,19 @@ Elle utilise cell_to_pixel pour obtenir la position exacte, puis fill_rect pour 
 @author TERRENOIRE Yvan
 *)
 
-let display_grid_color (x0, y0, grid, cell_size : int * int * t_grid * int) : unit =
+let display_grid_color (x0, y0, grid, cell_size, show_ships : int * int * t_grid * int * bool) : unit =
   let n = Array.length grid in
   for j = 0 to n - 1 do
     for i = 0 to n - 1 do
       let cell_val = grid.(j).(i) in
-      if cell_val = 2 then
-         color_cell (x0, y0, i, j, cell_size, green)
+      if cell_val = 1 && show_ships then
+        color_cell (x0, y0, i, j, cell_size, grey)
+      else if cell_val = 2 then
+        color_cell (x0, y0, i, j, cell_size, green)
       else if cell_val = 3 then
-         color_cell (x0, y0, i, j, cell_size, orange)
+        color_cell (x0, y0, i, j, cell_size, orange)
       else if cell_val = 4 then
-         color_cell (x0, y0, i, j, cell_size, red)
+        color_cell (x0, y0, i, j, cell_size, red)
       else ()
     done
   done
@@ -581,7 +583,7 @@ let rec player_turns (grid, ships, params, n: t_grid * t_ship list * t_params * 
     let x_player : int = params.margin * 2 + params.grid_size * params.cell_size in
     let y_grid : int = params.margin + params.message_size in
     let l_u0 : unit = draw_grid (x_player, y_grid, params.grid_size, params.cell_size) in
-    let l_u1 : unit = display_grid_color (x_player, y_grid, grid, params.cell_size) in
+    let l_u1 : unit = display_grid_color (x_player, y_grid, grid, params.cell_size, true) in
     player_turns (grid, updated_ships, params, (n - 1))
 ;;
 (**
@@ -688,11 +690,11 @@ let rec all_shoot (game, params : t_battleship * t_params) : unit =
     let x_player : int = params.margin * 2 + params.grid_size * params.cell_size in
     let y_grid : int = params.margin + params.message_size in
     draw_grid (x_comp, y_grid, params.grid_size, params.cell_size);
-    display_grid_color (x_comp, y_grid, game.comp_grid, params.cell_size);
+    display_grid_color (x_comp, y_grid, game.comp_grid, params.cell_size, false);
     moveto (x_comp, y_grid + params.grid_size * params.cell_size + 10);
     draw_string "Ordinateur";
     draw_grid (x_player, y_grid, params.grid_size, params.cell_size);
-    display_grid_color (x_player, y_grid, game.player_grid, params.cell_size);
+    display_grid_color (x_player, y_grid, game.player_grid, params.cell_size, true);
     moveto (x_player, y_grid + params.grid_size * params.cell_size + 10);
     draw_string "Joueur";
     all_shoot ({
@@ -754,11 +756,11 @@ let battleship_game () : unit =
   let x_comp : int = params.margin in
   let x_player : int = params.margin * 2 + params.grid_size * params.cell_size in
   draw_grid (x_comp, y_grid, params.grid_size, params.cell_size);
-  display_grid_color (x_comp, y_grid, game.comp_grid, params.cell_size);
+  display_grid_color (x_comp, y_grid, game.comp_grid, params.cell_size, false);
   moveto (x_comp, y_grid + params.grid_size * params.cell_size + 10);
   draw_string "Ordinateur";
   draw_grid (x_player, y_grid, params.grid_size, params.cell_size);
-  display_grid_color (x_player, y_grid, game.player_grid, params.cell_size);
+  display_grid_color (x_player, y_grid, game.player_grid, params.cell_size, true);
   moveto (x_player, y_grid + params.grid_size * params.cell_size + 10);
   draw_string "Joueur";
   all_shoot (game, params);
