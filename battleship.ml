@@ -101,7 +101,6 @@ let draw_grid (x0, y0, grid_size, cell_size : int * int * int * int) : unit =
     draw_string number;
   done
 ;;
-
 (**
 Commentaire :
 Cette fonction trace une grille carrée composée de lignes horizontales et verticales.
@@ -335,7 +334,6 @@ let read_mouse (params : t_params) : (int * int) =
   else
        (-1, -1)
 ;;
-
 (**
 Commentaire :
 Cette fonction attend le prochain clic de souris et retourne la position de la case cliquée dans la grille du joueur.
@@ -373,7 +371,7 @@ let rec manual_placing_ship_list (grid, ships, params : t_grid * (string * int) 
           else -1
         in
         if dir = -1 then (
-          display_message (["Erreur: case non contigue. Reessayez."], params, win_width);
+          display_message (["Erreur: case non contigue. Réessayez."], params, win_width);
           manual_placing_ship_list (grid, ships, params)
         )
         else
@@ -558,7 +556,7 @@ let player_shoot (grid, ships, params: t_grid * t_ship list * t_params) : t_ship
         let found_ship : t_ship = find_ship (ships, (i, j)) in
         if check_sunk_ship (found_ship, grid) then
           let sink_result : unit = sink_ship (found_ship, grid) in
-          let message_result : unit = display_message (["Bateau coule !"], params, (params.margin * 3 + params.grid_size * params.cell_size * 2)) in
+          let message_result : unit = display_message (["Bateau coulé !"], params, (params.margin * 3 + params.grid_size * params.cell_size * 2)) in
           ships
         else
           ships
@@ -682,7 +680,7 @@ Il sert à stocker l'état initial du jeu après le placement des bateaux.
 
 let rec all_shoot (game, params : t_battleship * t_params) : unit =
   if all_sunk (game.comp_ships, game.comp_grid) then
-    display_message (["Vous avez gagne !"], params, params.margin * 3 + params.grid_size * params.cell_size * 2)
+    display_message (["Vous avez gagné !"], params, params.margin * 3 + params.grid_size * params.cell_size * 2)
   else if all_sunk (game.player_ships, game.player_grid) then
     display_message (["Vous avez perdu !"], params, params.margin * 3 + params.grid_size * params.cell_size * 2)
   else
@@ -692,7 +690,7 @@ let rec all_shoot (game, params : t_battleship * t_params) : unit =
     let x_player : int = params.margin * 2 + params.grid_size * params.cell_size in
     let y_grid : int = params.margin + params.message_size in
     draw_grid (x_comp, y_grid, params.grid_size, params.cell_size);
-    display_grid_color (x_comp, y_grid, game.comp_grid, params.cell_size, true);
+    display_grid_color (x_comp, y_grid, game.comp_grid, params.cell_size, false);
     moveto (x_comp, y_grid + params.grid_size * params.cell_size + 10);
     draw_string "Ordinateur";
     draw_grid (x_player, y_grid, params.grid_size, params.cell_size);
@@ -745,7 +743,7 @@ let battleship_game () : unit =
   let comp_grid : t_grid = init_grid params.grid_size in
   let player_grid : t_grid = init_grid params.grid_size in
   let comp_ships : t_ship list = auto_placing_ships (comp_grid, params.ship_sizes) in
-  let player_ships : t_ship list = manual_placing_ship_list (player_grid, params.ship_sizes, params) in
+  let player_ships : t_ship list = auto_placing_ships (player_grid, params.ship_sizes) in
   let game : t_battleship = {
     comp_grid = comp_grid;
     player_grid = player_grid;
