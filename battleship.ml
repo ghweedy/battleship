@@ -75,21 +75,21 @@ let draw_grid (x0, y0, grid_size, cell_size : int * int * int * int) : unit =
 
   for i = 0 to grid_size do
     let pos = i * cell_size in
-    moveto (x0 + pos) y0;
-    lineto (x0 + pos) (y0 + size);
+    moveto (x0 + pos, y0);
+    lineto (x0 + pos, y0 + size);
   done;
 
   for i = 0 to grid_size do
     let pos = i * cell_size in
-    moveto x0 (y0 + pos);
-    lineto (x0 + size) (y0 + pos);
+    moveto  (x0, y0 + pos);
+    lineto (x0 + size, y0 + pos);
   done;
 
   for i = 0 to grid_size - 1 do
     let letter = String.make 1 (Char.chr (Char.code 'A' + i)) in
     let x_letter = x0 + i * cell_size + (cell_size / 3) in
     let y_letter = y0 + size + 5 in
-    moveto x_letter y_letter;
+    moveto (x_letter, y_letter);
     draw_string letter;
   done;
 
@@ -97,7 +97,7 @@ let draw_grid (x0, y0, grid_size, cell_size : int * int * int * int) : unit =
     let number = string_of_int (i + 1) in
     let x_number = x0 - 15 in
     let y_number = y0 + i * cell_size + (cell_size / 3) in
-    moveto x_number y_number;
+    moveto (x_number, y_number);
     draw_string number;
   done
 ;;
@@ -274,7 +274,7 @@ let display_grid_color (x0, y0, grid, cell_size, show_ships : int * int * t_grid
     for i = 0 to n - 1 do
       let cell_val = grid.(j).(i) in
       if cell_val = 1 && show_ships then
-        color_cell (x0, y0, i, j, cell_size, gray)
+        color_cell (x0, y0, i, j, cell_size, grey)
       else if cell_val = 2 then
         color_cell (x0, y0, i, j, cell_size, green)
       else if cell_val = 3 then
@@ -585,7 +585,7 @@ let rec player_turns (grid, ships, params, n: t_grid * t_ship list * t_params * 
     let x_player : int = params.margin * 2 + params.grid_size * params.cell_size in
     let y_grid : int = params.margin + params.message_size in
     let l_u0 : unit = draw_grid (x_player, y_grid, params.grid_size, params.cell_size) in
-    let l_u1 : unit = display_grid_color (x_player, y_grid, grid, params.cell_size) in
+    let l_u1 : unit = display_grid_color (x_player, y_grid, grid, params.cell_size, true) in
     player_turns (grid, updated_ships, params, (n - 1))
 ;;
 (**
@@ -692,11 +692,11 @@ let rec all_shoot (game, params : t_battleship * t_params) : unit =
     let x_player : int = params.margin * 2 + params.grid_size * params.cell_size in
     let y_grid : int = params.margin + params.message_size in
     draw_grid (x_comp, y_grid, params.grid_size, params.cell_size);
-    display_grid_color (x_comp, y_grid, game.comp_grid, params.cell_size);
+    display_grid_color (x_comp, y_grid, game.comp_grid, params.cell_size, true);
     moveto (x_comp, y_grid + params.grid_size * params.cell_size + 10);
     draw_string "Ordinateur";
     draw_grid (x_player, y_grid, params.grid_size, params.cell_size);
-    display_grid_color (x_player, y_grid, game.player_grid, params.cell_size);
+    display_grid_color (x_player, y_grid, game.player_grid, params.cell_size, true);
     moveto (x_player, y_grid + params.grid_size * params.cell_size + 10);
     draw_string "Joueur";
     all_shoot ({
@@ -758,7 +758,7 @@ let battleship_game () : unit =
   let x_comp : int = params.margin in
   let x_player : int = params.margin * 2 + params.grid_size * params.cell_size in
   draw_grid (x_comp, y_grid, params.grid_size, params.cell_size);
-  display_grid_color (x_comp, y_grid, game.comp_grid, params.cell_size, false);;
+  display_grid_color (x_comp, y_grid, game.comp_grid, params.cell_size, false);
   moveto (x_comp, y_grid + params.grid_size * params.cell_size + 10);
   draw_string "Ordinateur";
   draw_grid (x_player, y_grid, params.grid_size, params.cell_size);
