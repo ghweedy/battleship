@@ -373,7 +373,7 @@ let rec manual_placing_ship_list (grid, ships, params : t_grid * (string * int) 
           else -1
         in
         if dir = -1 then (
-          display_message (["Erreur: case non contigue. Réessayez."], params, win_width);
+          display_message (["Erreur: case non contigue. Reessayez."], params, win_width);
           manual_placing_ship_list (grid, ships, params)
         )
         else
@@ -558,7 +558,7 @@ let player_shoot (grid, ships, params: t_grid * t_ship list * t_params) : t_ship
         let found_ship : t_ship = find_ship (ships, (i, j)) in
         if check_sunk_ship (found_ship, grid) then
           let sink_result : unit = sink_ship (found_ship, grid) in
-          let message_result : unit = display_message (["Bateau coulé !"], params, (params.margin * 3 + params.grid_size * params.cell_size * 2)) in
+          let message_result : unit = display_message (["Bateau coule !"], params, (params.margin * 3 + params.grid_size * params.cell_size * 2)) in
           ships
         else
           ships
@@ -682,7 +682,7 @@ Il sert à stocker l'état initial du jeu après le placement des bateaux.
 
 let rec all_shoot (game, params : t_battleship * t_params) : unit =
   if all_sunk (game.comp_ships, game.comp_grid) then
-    display_message (["Vous avez gagné !"], params, params.margin * 3 + params.grid_size * params.cell_size * 2)
+    display_message (["Vous avez gagne !"], params, params.margin * 3 + params.grid_size * params.cell_size * 2)
   else if all_sunk (game.player_ships, game.player_grid) then
     display_message (["Vous avez perdu !"], params, params.margin * 3 + params.grid_size * params.cell_size * 2)
   else
