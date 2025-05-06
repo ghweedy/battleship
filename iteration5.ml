@@ -71,15 +71,34 @@ sur la grille.
 *)
 
 let draw_grid (x0, y0, grid_size, cell_size : int * int * int * int) : unit =
+  let size = grid_size * cell_size in
+
   for i = 0 to grid_size do
-    let x = x0 + i * cell_size in
-    moveto (x, y0);
-    lineto (x, y0 + grid_size * cell_size)
+    let pos = i * cell_size in
+    moveto (x0 + pos, y0);
+    lineto (x0 + pos, y0 + size);
   done;
-  for j = 0 to grid_size do
-    let y = y0 + j * cell_size in
-    moveto (x0, y);
-    lineto (x0 + grid_size * cell_size, y) 
+
+  for i = 0 to grid_size do
+    let pos = i * cell_size in
+    moveto  (x0, y0 + pos);
+    lineto (x0 + size, y0 + pos);
+  done;
+
+  for i = 0 to grid_size - 1 do
+    let letter = String.make 1 (Char.chr (Char.code 'A' + i)) in
+    let x_letter = x0 + i * cell_size + (cell_size / 3) in
+    let y_letter = y0 + size + 5 in
+    moveto (x_letter, y_letter);
+    draw_string letter;
+  done;
+
+  for i = 0 to grid_size - 1 do
+    let number = string_of_int (i + 1) in
+    let x_number = x0 - 15 in
+    let y_number = y0 + i * cell_size + (cell_size / 3) in
+    moveto (x_number, y_number);
+    draw_string number;
   done
 ;;
 (**
@@ -301,13 +320,13 @@ La fonction auxiliaire aux (récursive) permet d'afficher chaque message sur une
 *)
 
 let read_mouse (params : t_params) : (int * int) =
-  let event = Graphics.wait_next_event [Button_down] in
+  let event = Graphics.wait_next_event [Graphics.Button_down] in
   let mx = event.mouse_x and my = event.mouse_y in
-  let x_player = params.margin * 2 + params.grid_size * params.cell_size in
+  let x_comp = params.margin in
   let y_grid = params.margin + params.message_size in
-  if mx >= x_player && mx < x_player + params.grid_size * params.cell_size &&
+  if mx >= x_comp && mx < x_comp + params.grid_size * params.cell_size &&
      my >= y_grid && my < y_grid + params.grid_size * params.cell_size then
-       let i = (mx - x_player) / params.cell_size in
+       let i = (mx - x_comp) / params.cell_size in
        let j = (my - y_grid) / params.cell_size in
        (i, j)
   else
